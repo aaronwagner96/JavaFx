@@ -1,39 +1,40 @@
 package application.view;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import java.sql.Statement;
+
 import application.Main;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.Slider;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleButton;
 
 public class MainController {
 
     @FXML
-    private Button btn_fakeProgress;
-    
-    @FXML
-    private ProgressBar progressBar;
-    
-    @FXML
-    private DatePicker datePicker;
-    
-    @FXML
-    private TextField tf_datePicker;
-    
-    @FXML
     private ProgressIndicator progressIndicator;
-    
-    @FXML
-    private ToggleButton btn_toggleProgress;
-    
-    @FXML
-    private Slider slider;
 
+    @FXML
+    private TextField tf_ip;
+
+    @FXML
+    private TextField tf_db;
+    
+    @FXML
+    private TextField tf_user;
+    
+    @FXML
+    private TextField tf_pw;
+    
+    @FXML
+    private TextArea ta_status;
+    
+    private Connection connection;
+    
     // Reference to the main application.
     private Main mainApp;
 
@@ -44,32 +45,100 @@ public class MainController {
     	
     }
 
-    // Methoden
+    @FXML
+    private void connectDatabase() {
+    	new Thread() {
+    		
+    		@Override
+    		public void run() {
+    			connect();
+    		}
+    	}.start();
+     }
+    
+    private void connect() {
+       	ta_status.clear();
+
+    	newStatus("Setting ip ...");
+    	String ip = tf_ip.getText();
+    	
+    	newStatus("Setting db ...");
+    	String db = tf_db.getText();
+		
+    	newStatus("Setting up connection url ...");
+    	String url = "jdbc:mysql://" + ip + ":3306/" + db;
+		
+    	newStatus("Setting username ...");
+    	String username = tf_user.getText();
+    	
+    	newStatus("Setting password ...");
+		String password = tf_pw.getText();
+
+		newStatus("All done.");
+		newStatus("Connecting database ...");
+		
+		try {
+			connection = DriverManager.getConnection(url, username, password);
+			newStatus("Database connected successfully!");
+			
+			newStatus("Creating Session ...");
+			Statement stmt = connection.createStatement();
+	    	stmt.executeUpdate("INSERT INTO `test`.`login` (`Name`) VALUES ('Aaron');");
+	    	newStatus("Session created successfully!");
+	    	newStatus("Welcome!");
+		} catch (Exception e) {
+			newStatus("Couldn't connect to Database!");
+		}
+	}
     
     @FXML
-    private void startFakeProgress() {
-    	progressBar.setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+    private void testQuery() {
+    	startQuery("");
     }
     
-    @FXML
-    private void setDatePickerDate() {
-    	tf_datePicker.setText(datePicker.getValue().toString());
+    private void startQuery(String query) {
+    	Statement stmt = null;
+    	ResultSet rs = null;
+
+    	try {
+    		stmt = connection.createStatement();
+	    	rs = stmt.executeQuery(query);
+    	}
+    	catch (SQLException ex){
+    	    System.out.println("SQLException: " + ex.getMessage());
+    	}
+    	finally {
+    	    if (rs != null) {
+    	        try {
+    	            rs.close();
+    	        } catch (SQLException sqlEx) {}
+    	        rs = null;
+    	    }
+
+    	    if (stmt != null) {
+    	        try {
+    	            stmt.close();
+    	        } catch (SQLException sqlEx) {}
+    	        stmt = null;
+    	    }
+    	}
+    	
+    	if (rs == null)
+    		return;
+    	
+    	// Ergebnis nutzen
     }
     
-    @FXML
-    private void toggleProgress() {
-    	progressIndicator.setProgress(progressIndicator.isIndeterminate() ? 0 : ProgressBar.INDETERMINATE_PROGRESS);
-    }
-    
-    @FXML
-    private void slideProgress() {
-    	progressIndicator.setProgress(slider.getValue());
+    private void newStatus(String status) {
+    	if (ta_status.getText().isEmpty()) {
+    		ta_status.setText(status);
+    		return;
+    	}
+    	
+    	ta_status.setText(ta_status.getText() + "\n" + status);
     }
     
     public void setMainApp(Main mainApp) {
         this.mainApp = mainApp;
-
-        // Add observable list data to the table
-//        personTable.setItems(mainApp.getPersonData());
     }
 }
