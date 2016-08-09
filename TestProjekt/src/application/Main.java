@@ -2,7 +2,8 @@ package application;
 
 import java.io.IOException;
 
-import application.view.MainController;
+import application.view.Main_Controller;
+import application.view.SplashScreen_Controller;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -11,7 +12,8 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-	Stage primaryStage;
+	private Stage primaryStage;
+	public static String userID;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -28,9 +30,19 @@ public class Main extends Application {
 			primaryStage.setScene(scene);
 			primaryStage.show();
 
-			// Give the controller access to the main app.
-			MainController controller = loader.getController();
-			controller.setMainApp(this);
+			
+			/*
+			 * Controller Accesses
+			 */
+			
+			Main_Controller controller_main = loader.getController();
+			controller_main.setMainApp(this);
+			
+			loader = new FXMLLoader();
+			loader.setLocation(Main.class.getResource("view/SplashScreen.fxml"));
+			loader.load();
+			SplashScreen_Controller controller_splash = loader.getController();
+			controller_splash.setMainApp(this);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

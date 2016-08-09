@@ -67,9 +67,7 @@ public class DB_Controller {
     
     public static boolean login(String username, String password) {
     	
-    	String checkLoginData = "SELECT * FROM `test`.`userdata` WHERE `username` = '" + username +  "';";
-    	
-    	ResultSet rs = executeQuery(checkLoginData);
+    	ResultSet rs = executeQuery(SQLQuerys.FIND_LOGIN_DATA(username));
     	
     	if (rs == null)
     		return false;
@@ -90,7 +88,7 @@ public class DB_Controller {
 			try {
 				// Login Session erzeugen
 				stmt = connection.createStatement();
-				stmt.executeUpdate("INSERT INTO `test`.`session` (`Name`) VALUES ('" + username + "');");
+				stmt.executeUpdate(SQLQuerys.CREATE_SESSION(username));
 			} catch (SQLException e) {
 				e.printStackTrace();
 				return false;
