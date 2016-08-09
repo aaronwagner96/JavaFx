@@ -12,11 +12,9 @@ public class DB_Controller {
 	
 	public static boolean createDBConnection() {
 		
-		String ip = "localhost";
-		String db = "test";
-		String username = "root";
-		String password = "0000";
-		String url = "jdbc:mysql://" + ip + ":3306/" + db;
+		String username = AccessModel.USERNAME;
+		String password = AccessModel.PASSWORD;
+		String url = AccessModel.URL;
 		
 		try {
 			connection = DriverManager.getConnection(url, username, password);
@@ -75,7 +73,7 @@ public class DB_Controller {
     	String passwordInDB = null;
     	try {
 			while (rs.next()) {
-				passwordInDB = rs.getString("password");
+				passwordInDB = rs.getString("PASSWORD_HASH");
 			}
 		} catch (SQLException e1) {
 			e1.printStackTrace();
